@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<!-- saved from url=(0109)http://www.mathematik.uni-marburg.de/~thormae/lectures/graphics1/code/WebGLShaderLightMat/ShaderLightMat.html -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>WebGL Example: Phong / Blinn Phong Shading</title>
+<script language="JavaScript" type="text/javascript" src="./WebGL Example_ Phong _ Blinn Phong Shading_files/renderer.js"></script>
+<script language="JavaScript" type="text/javascript">
+  var renderer = 0;
+
+  function run() {
+    var vertSrc = document.getElementById("code_vert").value;
+    var fracSrc = document.getElementById("code_frag").value;
+
+    renderer = new Renderer("myWebGLCanvas", vertSrc, fracSrc);
+    renderer.init();
+    renderer.display();
+  }
+
+  function updateRenderer() {
+    var vertSrc = document.getElementById("code_vert").value;
+    var fragSrc = document.getElementById("code_frag").value;
+
+    renderer.updateShader(vertSrc, fragSrc);
+    renderer.display();
+  }
+
+  var interval = setInterval(timerFunc, 40);
+
+  function timerFunc() {
+    var offset = 1.0;
+    renderer.t += offset;
+    renderer.display();
+  }
+
+  function modeChanged() {
+    var d = document.getElementById("select_id").value;
+    renderer.modeVal = d;
+  }
+  
+  function modelChanged() {
+    var d = document.getElementById("select_id2").value;
+    renderer.updateModel(d);
+    renderer.display();
+  }
+  
+  function exampleChanged() {
+    var d = document.getElementById("select_example_id").value;
+    switch(parseInt(d)){
+    case 1:
+      document.getElementById("code_vert").value = document.getElementById("PhongBrdfPerVertVert").value;
+      document.getElementById("code_frag").value = document.getElementById("PhongBrdfPerVertFrag").value;
+      break;
+    case 2:
+      document.getElementById("code_vert").value = document.getElementById("PhongBrdfPerFragVert").value;
+      document.getElementById("code_frag").value = document.getElementById("PhongBrdfPerFragFrag").value;
+      break;
+    case 3:
+      document.getElementById("code_vert").value = document.getElementById("PhongShadingVert").value;
+      document.getElementById("code_frag").value = document.getElementById("PhongShadingFrag").value;     
+      break;
+    case 4:
+      document.getElementById("code_vert").value = document.getElementById("BlinnPhongShadingVert").value;
+      document.getElementById("code_frag").value = document.getElementById("BlinnPhongShadingFrag").value;  
+      break;
+    }
+    
+    updateRenderer();
+  }
+  
+</script>
+
+<style id="style-1-cropbar-clipper">/* Copyright 2014 Evernote Corporation. All rights reserved. */
+.en-markup-crop-options {
+    top: 18px !important;
+    left: 50% !important;
+    margin-left: -100px !important;
+    width: 200px !important;
+    border: 2px rgba(255,255,255,.38) solid !important;
+    border-radius: 4px !important;
+}
+
+.en-markup-crop-options div div:first-of-type {
+    margin-left: 0px !important;
+}
+</style></head>
+<body onload="run();">
+
+  <h1>WebGL Example: Phong / Blinn Phong Shading</h1>
+  <div style="max-width: 550px;">
+    <p>
+      The JavaScript source of this example is: <a href="./WebGL Example_ Phong _ Blinn Phong Shading_files/renderer.js">renderer.js</a><br>
+      If you do not see an output below, your browser does not support <a href="http://www.khronos.org/webgl/">WebGL</a>. The WebGL shader code is slightly different from the GLSL code (version 1.4 ) that is used in the <a href="http://www.uni-marburg.de/fb12/grafikmultimedia/lehre/grafik1">lecture</a>.
+      This is because WebGL shaders must conform to the OpenGL ES Shading Language (Version 1.0) which can be found <a href="http://www.khronos.org/registry/gles/specs/2.0/GLSL_ES_Specification_1.0.17.pdf">here</a>.
+      </p></div>
+    <p></p>
+  
+  <canvas id="myWebGLCanvas" width="640" height="480">Your browser does not support the canvas element</canvas>
+
+  <div style="max-width: 550px;">Edit the shader code below and click on the button to see the result:
+  <button type="button" onclick="updateRenderer()">Reload Shader Code</button></div>
+
+  <br>
+  <select onchange="modeChanged()" id="select_id">
+    <option value="1">mode = 1</option>
+    <option value="2">mode = 2</option>
+    <option value="3">mode = 3</option>
+    <option value="4">mode = 4</option>
+    <option value="5">mode = 5</option>
+  </select>
+
+  <select onchange="modelChanged()" id="select_id2">
+    <option value="./knot.txt">Knot</option>
+    <option value="./cube.txt">Cube</option>
+    <option value="./sphere.txt">Sphere</option>
+    <option value="./hose.txt">Hose</option>
+    <option value="./teapot.txt">Teapot</option>
+  </select>
+
+  <select onchange="exampleChanged()" id="select_example_id">
+    <option value="1">Phong BRDF per Vertex</option>
+    <option value="2">Phong BRDF per Fragment</option>
+    <option value="3">Phong Shading</option>
+    <option value="4">Blinn Phong Shading</option>
+  </select>
+
+  <table border="0" class="maintable" cellpadding="3px" cellspacing="3px">
+    <tbody><tr style="vertical-align: top;">
+      <td>Vertex shader: <br><textarea cols="40" rows="10" class="code_input_vert" id="code_vert" wrap="logical">attribute vec3 inputPosition;
+attribute vec2 inputTexCoord;
+attribute vec3 inputNormal;
+
+uniform mat4 projection, modelview, normalMat;
+uniform int mode;
+
+varying vec4 forFragColor;
+
+const vec3 lightPos = vec3(1.0, 1.0, 1.0);
+const vec3 diffuseColor = vec3(0.5, 0.0, 0.0);
+const vec3 specColor = vec3(1.0, 1.0, 1.0);
+
+void main(){
+  gl_Position = projection * modelview * vec4(inputPosition, 1.0);
+
+  // all following gemetric computations are performed in the
+  // camera coordinate system (aka eye coordinates)
+  vec3 normal = vec3(normalMat * vec4(inputNormal, 0.0));
+  vec4 vertPos4 = modelview * vec4(inputPosition, 1.0);
+  vec3 vertPos = vec3(vertPos4) / vertPos4.w;
+  vec3 lightDir = normalize(lightPos - vertPos);
+  vec3 reflectDir = reflect(-lightDir, normal);
+  vec3 viewDir = normalize(-vertPos);
+
+  float lambertian = max(dot(lightDir,normal), 0.0);
+  float specular = 0.0;
+  
+  if(lambertian &gt; 0.0) {
+    float specAngle = max(dot(reflectDir, viewDir), 0.0);
+    specular = pow(specAngle, 4.0);
+
+    // the exponent controls the shininess (try mode 2)
+    if(mode == 2)  specular = pow(specAngle, 16.0);
+       
+    // according to the rendering equation we would need to multiply
+    // with the the "lambertian", but this has little visual effect
+    if(mode == 3) specular *= lambertian;
+    // switch to mode 4 to turn off the specular component
+    if(mode == 4) specular *= 0.0;
+  }
+  
+  forFragColor = vec4(lambertian*diffuseColor + specular*specColor, 1.0);
+}
+</textarea>
+        <p id="code_vert_error" style="width: 200px;"></p>
+      </td>
+
+      <td>Fragment shader: <br><textarea cols="40" rows="10" class="code_input" id="code_frag" wrap="logical">precision mediump float; 
+varying vec4 forFragColor;
+
+void main() {
+  gl_FragColor = forFragColor;
+}
+</textarea>
+        <p id="code_frag_error" style="width: 200px;"></p>
+      </td>
+    </tr>
+  </tbody></table>
+
+<textarea id="PhongBrdfPerVertVert" style="display: none;">attribute vec3 inputPosition;
+attribute vec2 inputTexCoord;
+attribute vec3 inputNormal;
+
+uniform mat4 projection, modelview, normalMat;
+uniform int mode;
+
+varying vec4 forFragColor;
+
+const vec3 lightPos = vec3(1.0, 1.0, 1.0);
+const vec3 diffuseColor = vec3(0.5, 0.0, 0.0);
+const vec3 specColor = vec3(1.0, 1.0, 1.0);
+
+void main(){
+  gl_Position = projection * modelview * vec4(inputPosition, 1.0);
+
+  // all following gemetric computations are performed in the
+  // camera coordinate system (aka eye coordinates)
+  vec3 normal = vec3(normalMat * vec4(inputNormal, 0.0));
+  vec4 vertPos4 = modelview * vec4(inputPosition, 1.0);
+  vec3 vertPos = vec3(vertPos4) / vertPos4.w;
+  vec3 lightDir = normalize(lightPos - vertPos);
+  vec3 reflectDir = reflect(-lightDir, normal);
+  vec3 viewDir = normalize(-vertPos);
+
+  float lambertian = max(dot(lightDir,normal), 0.0);
+  float specular = 0.0;
+
+  if(lambertian &gt; 0.0) {
+    float specAngle = max(dot(reflectDir, viewDir), 0.0);
+    specular = pow(specAngle, 4.0);
+
+    // the exponent controls the shininess (try mode 2)
+    if(mode == 2)  specular = pow(specAngle, 16.0);
+       
+    // according to the rendering equation we would need to multiply
+    // with the the "lambertian", but this has little visual effect
+    if(mode == 3) specular *= lambertian;
+    // switch to mode 4 to turn off the specular component
+    if(mode == 4) specular *= 0.0;
+  }
+  forFragColor = vec4(lambertian*diffuseColor + specular*specColor, 1.0);
+}
+</textarea>
+<textarea id="PhongBrdfPerVertFrag" style="display: none;">precision mediump float; 
+varying vec4 forFragColor;
+
+void main() {
+  gl_FragColor = forFragColor;
+}
+</textarea>
+<textarea id="PhongBrdfPerFragVert" style="display: none;">attribute vec3 inputPosition;
+attribute vec2 inputTexCoord;
+attribute vec3 inputNormal;
+
+uniform mat4 projection, modelview, normalMat;
+
+varying vec3 normalInterp;
+varying vec3 vertPos;
+
+void main(){
+    gl_Position = projection * modelview * vec4(inputPosition, 1.0);
+    vec4 vertPos4 = modelview * vec4(inputPosition, 1.0);
+    vertPos = vec3(vertPos4) / vertPos4.w;
+    normalInterp = vec3(normalMat * vec4(inputNormal, 0.0));
+}
+</textarea>
+<textarea id="PhongBrdfPerFragFrag" style="display: none;">precision mediump float; 
+
+varying vec3 normalInterp;
+varying vec3 vertPos;
+
+uniform int mode;
+
+const vec3 lightPos = vec3(1.0,1.0,1.0);
+const vec3 diffuseColor = vec3(0.5, 0.0, 0.0);
+const vec3 specColor = vec3(1.0, 1.0, 1.0);
+
+void main() {
+
+  vec3 normal = normalize(normalInterp); 
+  vec3 lightDir = normalize(lightPos - vertPos);
+
+  float lambertian = max(dot(lightDir,normal), 0.0);
+  float specular = 0.0;
+
+  if(lambertian &gt; 0.0) {
+
+    vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 viewDir = normalize(-vertPos);
+
+    float specAngle = max(dot(reflectDir, viewDir), 0.0);
+    specular = pow(specAngle, 4.0);
+
+    // the exponent controls the shininess (try mode 2)
+    if(mode == 2)  specular = pow(specAngle, 16.0);
+
+    // according to the rendering equation we would need to multiply
+    // with the the "lambertian", but this has little visual effect
+    if(mode == 3) specular *= lambertian;
+
+    // switch to mode 4 to turn off the specular component
+    if(mode == 4) specular *= 0.0;
+
+  }
+
+  gl_FragColor = vec4( lambertian*diffuseColor +
+                        specular*specColor, 1.0);
+}
+</textarea>
+<textarea id="PhongShadingVert" style="display: none;">attribute vec3 inputPosition;
+attribute vec2 inputTexCoord;
+attribute vec3 inputNormal;
+
+uniform mat4 projection, modelview, normalMat;
+
+varying vec3 normalInterp;
+varying vec3 vertPos;
+
+void main(){
+    gl_Position = projection * modelview * vec4(inputPosition, 1.0);
+    vec4 vertPos4 = modelview * vec4(inputPosition, 1.0);
+    vertPos = vec3(vertPos4) / vertPos4.w;
+    normalInterp = vec3(normalMat * vec4(inputNormal, 0.0));
+}
+</textarea>
+<textarea id="PhongShadingFrag" style="display: none;">precision mediump float; 
+
+varying vec3 normalInterp;
+varying vec3 vertPos;
+
+uniform int mode;
+
+const vec3 lightPos = vec3(1.0,1.0,1.0);
+const vec3 ambientColor = vec3(0.3, 0.0, 0.0);
+const vec3 diffuseColor = vec3(0.5, 0.0, 0.0);
+const vec3 specColor = vec3(1.0, 1.0, 1.0);
+
+void main() {
+    vec3 normal = normalize(normalInterp);
+    vec3 lightDir = normalize(lightPos - vertPos);
+    vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 viewDir = normalize(-vertPos);
+
+    float lambertian = max(dot(lightDir,normal), 0.0);
+    float specular = 0.0;
+
+    if(lambertian &gt; 0.0) {
+       float specAngle = max(dot(reflectDir, viewDir), 0.0);
+       specular = pow(specAngle, 4.0);
+    }
+    gl_FragColor = vec4(ambientColor +
+                      lambertian*diffuseColor +
+                      specular*specColor, 1.0);
+
+    // only ambient
+    if(mode == 2) gl_FragColor = vec4(ambientColor, 1.0);
+    // only diffuse
+    if(mode == 3) gl_FragColor = vec4(lambertian*diffuseColor, 1.0);
+    // only specular
+    if(mode == 4) gl_FragColor = vec4(specular*specColor, 1.0);
+
+}
+</textarea>
+
+<textarea id="BlinnPhongShadingVert" style="display: none;">attribute vec3 inputPosition;
+attribute vec2 inputTexCoord;
+attribute vec3 inputNormal;
+
+uniform mat4 projection, modelview, normalMat;
+
+varying vec3 normalInterp;
+varying vec3 vertPos;
+
+void main(){
+    gl_Position = projection * modelview * vec4(inputPosition, 1.0);
+    vec4 vertPos4 = modelview * vec4(inputPosition, 1.0);
+    vertPos = vec3(vertPos4) / vertPos4.w;
+    normalInterp = vec3(normalMat * vec4(inputNormal, 0.0));
+}
+</textarea>
+<textarea id="BlinnPhongShadingFrag" style="display: none;">precision mediump float; 
+
+varying vec3 normalInterp;
+varying vec3 vertPos;
+
+uniform int mode;
+
+const vec3 lightPos = vec3(1.0,1.0,1.0);
+const vec3 ambientColor = vec3(0.1, 0.0, 0.0);
+const vec3 diffuseColor = vec3(0.5, 0.0, 0.0);
+const vec3 specColor = vec3(1.0, 1.0, 1.0);
+
+void main() {
+
+  vec3 normal = normalize(normalInterp);
+  vec3 lightDir = normalize(lightPos - vertPos);
+
+  float lambertian = max(dot(lightDir,normal), 0.0);
+  float specular = 0.0;
+
+  if(lambertian &gt; 0.0) {
+
+    vec3 viewDir = normalize(-vertPos);
+
+    // this is blinn phong
+    vec3 halfDir = normalize(lightDir + viewDir);
+    float specAngle = max(dot(halfDir, normal), 0.0);
+    specular = pow(specAngle, 16.0);
+       
+    // this is phong (for comparison)
+    if(mode == 2) {
+      vec3 reflectDir = reflect(-lightDir, normal);
+      specAngle = max(dot(reflectDir, viewDir), 0.0);
+      // note that the exponent is different here
+      specular = pow(specAngle, 4.0);
+    }
+  }
+
+  gl_FragColor = vec4(ambientColor +
+                      lambertian * diffuseColor +
+                      specular * specColor, 1.0);
+}
+</textarea>
+
+
+
+<div id="lbdictex_find_popup" class="lbexpopup hidden" style="position: absolute; top: 0px; left: 0px;"><div class="lbexpopup_top"><h2 class="fl popup_title">&nbsp;</h2><ul><li><a class="close_main popup_close" href="http://www.mathematik.uni-marburg.de/~thormae/lectures/graphics1/code/WebGLShaderLightMat/ShaderLightMat.html#">&nbsp;</a></li></ul><div class="clr"></div></div><div class="popup_details"></div><div class="popup_powered">abc</div></div><div id="lbdictex_ask_mark" class="hidden" style="position: absolute; top: 0px; left: 0px;"><a class="lbdictex_ask_select" href="http://www.mathematik.uni-marburg.de/~thormae/lectures/graphics1/code/WebGLShaderLightMat/ShaderLightMat.html#">&nbsp;</a></div></body></html>

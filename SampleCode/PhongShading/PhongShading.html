@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>Rotating Square</title>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+    attribute vec3 inputPosition;
+    attribute vec2 inputTexCoord;
+    attribute vec3 inputNormal;
+
+    uniform mat4 projection, modelview, normalMat;
+
+    varying vec3 normalInterp;
+    varying vec3 vertPos;
+
+    void main(){
+        gl_Position = projection * modelview * vec4(inputPosition, 1.0);
+        vec4 vertPos4 = modelview * vec4(inputPosition, 1.0);
+        vertPos = vec3(vertPos4) / vertPos4.w;
+        normalInterp = vec3(normalMat * vec4(inputNormal, 0.0));
+    }
+
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+   precision mediump float; 
+    varying vec3 normalInterp;
+    varying vec3 vertPos;
+
+    uniform int mode;
+
+    const vec3 lightPos = vec3(1.0,1.0,1.0);
+    const vec3 ambientColor = vec3(0.3, 0.0, 0.0);
+    const vec3 diffuseColor = vec3(0.5, 0.0, 0.0);
+    const vec3 specColor = vec3(1.0, 1.0, 1.0);
+
+    void main() {
+        vec3 normal = normalize(normalInterp);
+        vec3 lightDir = normalize(lightPos - vertPos);
+        vec3 reflectDir = reflect(-lightDir, normal);
+        vec3 viewDir = normalize(-vertPos);
+
+        float lambertian = max(dot(lightDir,normal), 0.0);
+        float specular = 0.0;
+
+        if(lambertian > 0.0) {
+        float specAngle = max(dot(reflectDir, viewDir), 0.0);
+        specular = pow(specAngle, 4.0);
+        }
+        gl_FragColor = vec4(ambientColor +
+                        lambertian*diffuseColor +
+                        specular*specColor, 1.0);
+
+        // only ambient
+        if(mode == 2) gl_FragColor = vec4(ambientColor, 1.0);
+        // only diffuse
+        if(mode == 3) gl_FragColor = vec4(lambertian*diffuseColor, 1.0);
+        // only specular
+        if(mode == 4) gl_FragColor = vec4(specular*specColor, 1.0);
+
+    }
+
+</script>
+
+<script type="text/javascript" src="PhongShading.js"></script>
+<script type="text/javascript" src="gl-matrix.js"></script>
+<script type = "text/javascript">
+        window.onload = function()
+        {
+            RunWebGL("vertex-shader", "fragment-shader");
+        };
+ </script>
+
+</head>
+
+<body>
+    <div>
+        speed 0%
+        <input id="slider" type="range" min="0" max="100" step="10" value="50" /> 100%
+    </div>
+
+
+    <button id="Direction">Change Rotation Direction</button>
+
+    <select id="Controls" size="3">
+        <option value="0">Toggle Rotation Direction</option>
+        <option value="1">Spin Faster</option>
+        <option value="2">Spin Slower</option>
+    </select>
+
+    Demo Box
+    <input type="text" id="testValue" style="width.50px"></input>
+
+    <canvas id="webGL-canvas" width="512" height="512">
+        Oops ... your browser doesn't support the HTML5 canvas element
+    </canvas>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
