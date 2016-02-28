@@ -5547,15 +5547,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	module.exports = vec2;
-
-
-/***/ }
-/******/ ])
-});
-;
-
-
-  // the following functions are some matrix and vector helpers
+    
+    
+    ///ahnguyenvn
+      // the following functions are some matrix and vector helpers
   // they work for this demo but in general it is recommended
   // to use more advanced matrix libraries
   function vec3Dot(a, b) {
@@ -5704,3 +5699,12 @@ return /******/ (function(modules) { // webpackBootstrap
     for (var i = 0; i < 16; i++) inverse[i] = inv[i] * det;
     return true;
   }
+    //anhnguyenvn
+
+
+/***/ }
+/******/ ])
+});
+;
+
+
