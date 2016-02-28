@@ -186,6 +186,7 @@ function Renderer(canvasName, vertSrc, fragSrc)
     gl.shaderSource(vertID, vertSrc);
     gl.shaderSource(fragID, fragSrc);
 
+
     // compile the shader
     gl.compileShader(vertID);
     gl.compileShader(fragID);
