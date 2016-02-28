@@ -166,16 +166,7 @@ function SupplyData()
       offset = 0 + (3+2)*Float32Array.BYTES_PER_ELEMENT;
       gl.vertexAttribPointer(normalLoc, 3, gl.FLOAT, false, stride, offset);
       gl.enableVertexAttribArray(normalLoc);
-    }
-
-	var boxVertexBufferObject = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, boxVertexBufferObject);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(boxVertices), gl.STATIC_DRAW);
-
-	var boxIndexBufferObject = gl.createBuffer();
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, boxIndexBufferObject);
-	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(boxIndices), gl.STATIC_DRAW);
-    
+    }  
     
     gl.useProgram(program); 
 	
