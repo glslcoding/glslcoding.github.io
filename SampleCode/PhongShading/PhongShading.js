@@ -123,18 +123,18 @@ function ConnectWithShaderAttribute()
 {                                   
     
 	// retrieve the location of the IN variables of the vertex shader
-    vertexLoc = gl.getAttribLocation(progID,"inputPosition");
-    texCoordLoc =  gl.getAttribLocation(progID,"inputTexCoord");
-    normalLoc = gl.getAttribLocation(progID, "inputNormal");
+    vertexLoc = gl.getAttribLocation(program,"inputPosition");
+    texCoordLoc =  gl.getAttribLocation(program,"inputTexCoord");
+    normalLoc = gl.getAttribLocation(program, "inputNormal");
     
     // retrieve the location of the UNIFORM variables of the shader
-    projectionLoc = gl.getUniformLocation(progID, "projection");
-    modelviewLoc = gl.getUniformLocation(progID, "modelview");
-    normalMatrixLoc = gl.getUniformLocation(progID, "normalMat");
-    modeLoc = gl.getUniformLocation(progID, "mode");
-    lightPosLoc = gl.getUniformLocation(progID, "lightPos");
-    lightVecLoc = gl.getUniformLocation(progID, "lightVec");
-    attenuationLoc = gl.getUniformLocation(progID, "attenuationVal");
+    projectionLoc = gl.getUniformLocation(program, "projection");
+    modelviewLoc = gl.getUniformLocation(program, "modelview");
+    normalMatrixLoc = gl.getUniformLocation(program, "normalMat");
+    modeLoc = gl.getUniformLocation(program, "mode");
+    lightPosLoc = gl.getUniformLocation(program, "lightPos");
+    lightVecLoc = gl.getUniformLocation(program, "lightVec");
+    attenuationLoc = gl.getUniformLocation(program, "attenuationVal");
 }
 
 
