@@ -32,7 +32,7 @@ function Renderer(canvasName, vertSrc, fragSrc)
   var attenuationLoc = 0;
   var projection = new Float32Array(16);
   var modelview = new Float32Array(16);
-  var currentFileName = "./knot.txt";
+  var currentFileName = "teapot.txt";
   
   // public 
   this.updateShader = function (newvertSrc, newfragSrc) {

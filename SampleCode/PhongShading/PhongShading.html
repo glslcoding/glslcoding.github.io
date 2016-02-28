@@ -64,16 +64,11 @@
 
 <script type="text/javascript" src="PhongShading.js"></script>
 <script type="text/javascript" src="gl-matrix.js"></script>
-<script type = "text/javascript">
-        window.onload = function()
-        {
-            RunWebGL("vertex-shader", "fragment-shader");
-        };
- </script>
+
 
 </head>
 
-<body>
+<body onload="RunWebGL('vertex-shader', 'fragment-shader');">
    <canvas id="webGL-canvas" width="512" height="512">
   
     </canvas>
