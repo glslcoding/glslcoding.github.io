@@ -68,9 +68,12 @@ function InitShader(vertexShaderId, fragmentShaderId)
 }
 
 function ConnectWithShaderAttribute()
-{                                   
+{      
+                                
     var positionAttribLocation = gl.getAttribLocation(program, "vertPosition");
     var colorAttribLocation = gl.getAttribLocation(program, 'vertColor');              
+
+SupplyData();
 
     gl.vertexAttribPointer(
         positionAttribLocation, // Attribute location
@@ -80,6 +83,9 @@ function ConnectWithShaderAttribute()
         5 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
         3 * Float32Array.BYTES_PER_ELEMENT //Offset from the beginning of a single vertex to this attribute
     );
+    
+    
+    
     gl.vertexAttribPointer(
         colorAttribLocation, // Attribute location
         3, // Number of elements per attribute
@@ -93,7 +99,7 @@ function ConnectWithShaderAttribute()
     gl.enableVertexAttribArray(colorAttribLocation);
 }
 
-function SupplyData()
+function SupplyData()       
 {
     
     
@@ -107,6 +113,8 @@ function SupplyData()
     var triangleVBO = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, triangleVBO);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices),gl.STATIC_DRAW);  
+    
+    
 }
 
 function Render()
@@ -126,8 +134,8 @@ function Render()
 var RunWebGL = function(vertexShaderId, fragShaderID)
 {
     InitWebGL();
+    //SupplyData();
     InitShader(vertexShaderId, fragShaderID);
-    SupplyData();
-    ConnectWithShaderAttribute();          
+    ConnectWithShaderAttribute();
     Render();            
 }
