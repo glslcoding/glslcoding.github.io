@@ -197,7 +197,7 @@ function Render()
     mat4.lookAt(modelview,
                [1.5*Math.cos(rad), 1.5*Math.sin(rad), 1.5], // eye
                [0.0, 0.0, 0.0], // look at
-               [0.0, 0.0, 1.0]); // up
+               [0.0, 1.0, 0.0]); // up
     
     //mat4Print(modelview);
     

@@ -403,7 +403,7 @@
                 gl.attachShader(program, fragShader);
                 
                 gl.linkProgram(program);
-                gl.useProgram(program);
+               
                 
                 var cornerPoints = [-1.0, 1.0,
                                      1.0, 1.0,
@@ -411,7 +411,7 @@
                                     -1.0,-1.0];
                 var vbo = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cornerPoints),gl.STATIC_DRAW);                                
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cornerPoints), gl.STATIC_DRAW);                                
                                     
                 var positionAttribLocation = gl.getAttribLocation(program, "pos");
                 

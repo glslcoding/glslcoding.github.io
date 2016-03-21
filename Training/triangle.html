@@ -1,0 +1,127 @@
+<html>
+    <head>
+        <script id = "vert-shader" type = "x-shader/x-vertex">
+            attribute vec4 vPos;
+            
+            void main()
+            {
+                gl_Position = vPos;
+            }
+        </script>
+        
+        <script id = "frag-shader" type = "x-shader/x-fragment">
+            precision mediump float;
+            
+            uniform float width;
+            uniform float height;
+            
+            void main()
+            {
+                vec2 uv = vec2(gl_FragCoord.x/width, gl_FragCoord.y/height);
+                
+                vec3 col = vec3(1.0, 0.0, 0.0);
+                
+                float r = 0.2;
+                
+                vec2 q = uv - vec2(0.5, 0.5);
+                
+                col *= smoothstep(r, 0.005 + r, length(q));
+                
+                gl_FragColor = vec4(col, 1.0); 
+            
+            }
+        
+            
+        </script>
+        
+        <script>
+            function Render()
+            {
+                var canvas = document.getElementById("webgl-canvas");
+                var gl = canvas.getContext("webgl");
+                
+                var vertShader = gl.createShader(gl.VERTEX_SHADER);
+                var fragShader = gl.createShader(gl.FRAGMENT_SHADER);
+                
+                var vertShaderSource = document.getElementById("vert-shader");
+                var fragShaderSource = document.getElementById("frag-shader");
+                
+                
+                
+                
+                gl.shaderSource(vertShader, vertShaderSource.text);
+                gl.shaderSource(fragShader, fragShaderSource.text);
+                
+                gl.compileShader(vertShader);
+                gl.compileShader(fragShader);
+                
+                if (!gl.getShaderParameter(vertShader, gl.COMPILE_STATUS)) {
+                    console.error('ERROR compiling vertex shader!', gl.getShaderInfoLog(vertShader));
+                    return;
+                }
+                
+                if (!gl.getShaderParameter(fragShader, gl.COMPILE_STATUS)) {
+                    console.error('ERROR compiling fragShader!', gl.getShaderInfoLog(fragShader));
+                    return;
+                }
+                
+              
+                
+                
+                var program = gl.createProgram();
+                gl.attachShader(program, vertShader);
+                gl.attachShader(program, fragShader);
+               
+                gl.linkProgram(program);
+             
+                   
+                var threePoints = [0.0, 1.0, -1.0, -1.0, 1.0, -1.0];
+                
+                var vbo = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(threePoints), gl.STATIC_DRAW);
+                
+                
+                
+              
+                
+                 var posAttribLocation = gl.getAttribLocation(program, "vPos");
+                
+                gl.vertexAttribPointer(
+                    posAttribLocation,
+                    2,
+                    gl.FLOAT,
+                    gl.FALSE,
+                    2 * Float32Array.BYTES_PER_ELEMENT,
+                    0
+                );
+                
+                gl.enableVertexAttribArray(posAttribLocation);
+                
+                var widthLocation =  gl.getUniformLocation(program, "width");
+                var heightLocation = gl.getUniformLocation(program, "height");
+                // use program must be after programming link and before gl. --> sending data
+                gl.useProgram(program);
+               
+                gl.uniform1f(widthLocation, canvas.clientWidth);
+                 
+                gl.uniform1f(heightLocation, canvas.clientHeight);
+              
+              
+                      
+                
+                
+                gl.clear(gl.COLOR_BUFFER_BIT);
+                gl.drawArrays(gl.TRIANGLES, 0, 3);
+                
+                
+            }
+        </script>
+    </head>
+    <body onload="Render()">
+        <div>
+            <canvas id = "webgl-canvas" width = "800" height = "600">               
+            </canvas>
+        </div>
+    </body>
+</html>

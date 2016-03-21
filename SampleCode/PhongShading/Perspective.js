@@ -1,16 +1,7 @@
-
-
-
-
 var canvas;
 var gl;
 var program;
 var theta = 0.0;
-var thetaLoc;
-
-var speed = 100;
-var direction = true;
-
 
 var matWorldUniformLocation;
 var matViewUniformLocation;
@@ -23,8 +14,8 @@ var projMatrix;
 function InitWebGL()
 {
     canvas = document.getElementById("webGL-canvas");
-    gl = canvas.getContext("webgl") ||
-            canvas.getContext("experimental-webgl");
+    gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    
     if (!gl)
     {
         console.log("Browser doesnt support webGL");
@@ -111,55 +102,6 @@ function ConnectWithShaderAttribute()
 	gl.enableVertexAttribArray(colorAttribLocation);   
 }
 
-function EventHandler()
-{
-     // Initialize event handlers
-
-    document.getElementById("testValue").onchange = function(){
-    console.log(event.target.value);
-    };
-
-    document.getElementById("slider").onchange = function(event) {
-        speed = 100 - event.target.value;
-    };
-    document.getElementById("Direction").onclick = function () {
-        direction = !direction;
-    };
-
-    document.getElementById("Controls").onclick = function( event) {
-        switch(event.target.index) {
-          case 0:
-            direction = !direction;
-            break;
-
-         case 1:
-            speed /= 2.0;
-            break;
-
-         case 2:
-            speed *= 2.0;
-            break;
-       }
-    };
-
-    window.onkeydown = function( event ) {
-        var key = String.fromCharCode(event.keyCode);
-        switch( key ) {
-          case '1':
-            direction = !direction;
-            break;
-
-          case '2':
-            speed /= 2.0;
-            break;
-
-          case '3':
-            speed *= 2.0;
-            break;
-        }
-    };
-}
-
 function SupplyData()
 {
     //
@@ -238,13 +180,7 @@ function SupplyData()
 	var boxIndexBufferObject = gl.createBuffer();
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, boxIndexBufferObject);
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(boxIndices), gl.STATIC_DRAW);
-    
-    
-      gl.useProgram(program); 
-    
-   
-
-	
+    gl.useProgram(program); 	
 }
 
 function Render()
@@ -257,10 +193,10 @@ function Render()
     gl.clearColor(0.75, 0.85, 0.8, 1.0);
     gl.viewport( 0, 0, canvas.width, canvas.height );
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	gl.enable(gl.DEPTH_TEST);
+	//gl.enable(gl.DEPTH_TEST);
 	gl.enable(gl.CULL_FACE);
-	gl.frontFace(gl.CCW);
-	gl.cullFace(gl.BACK);
+	//gl.frontFace(gl.CCW);
+	//gl.cullFace(gl.BACK);
     
 
     
@@ -272,8 +208,12 @@ function Render()
 	viewMatrix = new Float32Array(16);
 	projMatrix = new Float32Array(16);
 	mat4.identity(worldMatrix);
+    
+                            //Camera Position
+                                        //camera lookat
+                                                   //camera up vector                            
 	mat4.lookAt(viewMatrix, [0, 0, -8], [0, 0, 0], [0, 1, 0]);
-	mat4.perspective(projMatrix, glMatrix.toRadian(45), canvas.width / canvas.height, 0.1, 1000.0);
+	mat4.perspective(projMatrix, glMatrix.toRadian(60), canvas.width / canvas.height, 0.1, 1000.0);
 
 	gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
 	gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
@@ -295,7 +235,8 @@ function Render()
 		gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
 
 		gl.clearColor(0.75, 0.85, 0.8, 1.0);
-		gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
+		//gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
+        gl.clear(gl.COLOR_BUFFER_BIT);
 		gl.drawElements(gl.TRIANGLES, 36, gl.UNSIGNED_SHORT, 0);
 
 		requestAnimationFrame(loop);
@@ -308,19 +249,7 @@ var RunWebGL = function(vertexShaderId, fragShaderID)
     InitWebGL();
     InitShader(vertexShaderId, fragShaderID);
     SupplyData();
-    ConnectWithShaderAttribute();       
-    EventHandler();   
+    ConnectWithShaderAttribute();           
     Render();            
 }
 
-
-window.requestAnimFrame = (function() {
-  return window.requestAnimationFrame ||
-         window.webkitRequestAnimationFrame ||
-         window.mozRequestAnimationFrame ||
-         window.oRequestAnimationFrame ||
-         window.msRequestAnimationFrame ||
-         function(/* function FrameRequestCallback */ callback, /* DOMElement Element */ element) {
-           window.setTimeout(callback, 1000/60);
-         };
-})();
